@@ -502,8 +502,22 @@ func (m *Message) WithCacheControl(cacheControl *CacheControl) *Message {
 					CacheControl: cacheControl,
 				},
 			}
+			m.Content = ""
 		} else {
 			m.MultiContent[len(m.MultiContent)-1].CacheControl = cacheControl
+		}
+	} else {
+		if len(m.MultiContent) > 0 {
+			m.MultiContent[len(m.MultiContent)-1].CacheControl = cacheControl
+		}
+	}
+	return m
+}
+
+func (m *Message) ResetCacheControl() *Message {
+	if len(m.MultiContent) > 0 {
+		for i := range m.MultiContent {
+			m.MultiContent[i].CacheControl = nil
 		}
 	}
 	return m
