@@ -65,6 +65,12 @@ type ToolInfo struct {
 	//  - use openAPIV3: schema.NewParamsOneOfByOpenAPIV3(openAPIV3)
 	// If is nil, signals that the tool does not need any input parameter
 	*ParamsOneOf
+
+	// Cache control for anthropic models: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+	// Due to the automatic prompt caching mechanism implemented in GPT series models,
+	// this field value is ignored during GPT model execution.
+	// For more details, please refer to the official documentation: https://platform.openai.com/docs/guides/prompt-caching
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
 }
 
 // ParameterInfo is the information of a parameter.
