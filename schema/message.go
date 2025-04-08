@@ -286,6 +286,11 @@ type ResponseMeta struct {
 	LogProbs *LogProbs `json:"logprobs,omitempty"`
 }
 
+type CacheControl struct {
+	// Only support "ephemeral" for now
+	Type string `json:"type"`
+}
+
 type Message struct {
 	Role    RoleType `json:"role"`
 	Content string   `json:"content"`
@@ -306,16 +311,30 @@ type Message struct {
 
 	// customized information for model implementation
 	Extra map[string]any `json:"extra,omitempty"`
+
+	// Cache control for anthropic models: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+	// Due to the automatic prompt caching mechanism implemented in GPT series models,
+	// this field value is ignored during GPT model execution.
+	// For more details, please refer to the official documentation: https://platform.openai.com/docs/guides/prompt-caching
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
 }
 
 // TokenUsage Represents the token usage of chat model request.
 type TokenUsage struct {
 	// PromptTokens is the number of tokens in the prompt.
+	// If prompt caching is enabled, this value will be the number of input tokens which were not read from or used to create a cache.
 	PromptTokens int `json:"prompt_tokens"`
 	// CompletionTokens is the number of tokens in the completion.
 	CompletionTokens int `json:"completion_tokens"`
 	// TotalTokens is the total number of tokens in the request.
 	TotalTokens int `json:"total_tokens"`
+
+	// CachedCreationTokens is the number of tokens written to the cache when creating a new entry.
+	// Corresponds to "cache_creation_input_tokens" in Anthropic.
+	CacheCreationInputTokens int `json:"cache_creation_input_tokens"`
+	// CachedReadInputTokens is the number of tokens retrieved from the cache for this request.
+	// Corresponds to "cached_tokens" in OpenAI and "cache_read_input_tokens" in Anthropic.
+	CacheReadInputTokens int `json:"cache_read_input_tokens"`
 }
 
 var _ MessagesTemplate = &Message{}
