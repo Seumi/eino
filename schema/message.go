@@ -235,6 +235,12 @@ type ChatMessagePart struct {
 	VideoURL *ChatMessageVideoURL `json:"video_url,omitempty"`
 	// FileURL is the file url of the part, it's used when Type is "file_url".
 	FileURL *ChatMessageFileURL `json:"file_url,omitempty"`
+
+	// Cache control for anthropic models: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+	// Due to the automatic prompt caching mechanism implemented in GPT series models,
+	// this field value is ignored during GPT model execution.
+	// For more details, please refer to the official documentation: https://platform.openai.com/docs/guides/prompt-caching
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
 }
 
 // LogProbs is the top-level structure containing the log probability information.
@@ -311,12 +317,6 @@ type Message struct {
 
 	// customized information for model implementation
 	Extra map[string]any `json:"extra,omitempty"`
-
-	// Cache control for anthropic models: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
-	// Due to the automatic prompt caching mechanism implemented in GPT series models,
-	// this field value is ignored during GPT model execution.
-	// For more details, please refer to the official documentation: https://platform.openai.com/docs/guides/prompt-caching
-	CacheControl *CacheControl `json:"cache_control,omitempty"`
 }
 
 // TokenUsage Represents the token usage of chat model request.
@@ -493,7 +493,19 @@ func (m *Message) String() string {
 }
 
 func (m *Message) WithCacheControl(cacheControl *CacheControl) *Message {
-	m.CacheControl = cacheControl
+	if m.Content != "" {
+		if len(m.MultiContent) == 0 {
+			m.MultiContent = []ChatMessagePart{
+				{
+					Type:         ChatMessagePartTypeText,
+					Text:         m.Content,
+					CacheControl: cacheControl,
+				},
+			}
+		} else {
+			m.MultiContent[len(m.MultiContent)-1].CacheControl = cacheControl
+		}
+	}
 	return m
 }
 
