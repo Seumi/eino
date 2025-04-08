@@ -492,6 +492,11 @@ func (m *Message) String() string {
 	return s
 }
 
+func (m *Message) WithCacheControl(cacheControl *CacheControl) *Message {
+	m.CacheControl = cacheControl
+	return m
+}
+
 // SystemMessage represents a message with Role "system".
 func SystemMessage(content string) *Message {
 	return &Message{
