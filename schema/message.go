@@ -745,6 +745,14 @@ func ConcatMessages(msgs []*Message) (*Message, error) {
 				if msg.ResponseMeta.Usage.TotalTokens > ret.ResponseMeta.Usage.TotalTokens {
 					ret.ResponseMeta.Usage.TotalTokens = msg.ResponseMeta.Usage.TotalTokens
 				}
+
+				if msg.ResponseMeta.Usage.CacheCreationInputTokens > ret.ResponseMeta.Usage.CacheCreationInputTokens {
+					ret.ResponseMeta.Usage.CacheCreationInputTokens = msg.ResponseMeta.Usage.CacheCreationInputTokens
+				}
+
+				if msg.ResponseMeta.Usage.CacheReadInputTokens > ret.ResponseMeta.Usage.CacheReadInputTokens {
+					ret.ResponseMeta.Usage.CacheReadInputTokens = msg.ResponseMeta.Usage.CacheReadInputTokens
+				}
 			}
 
 			if msg.ResponseMeta.LogProbs != nil {
